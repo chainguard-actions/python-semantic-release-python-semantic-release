@@ -1,0 +1,7 @@
+{
+  "owner": "python-semantic-release",
+  "name": "python-semantic-release",
+  "visibility": "internal",
+  "description": "Automated Releases via SemVer and Commit Message Conventions",
+  "block_publish": false
+}
