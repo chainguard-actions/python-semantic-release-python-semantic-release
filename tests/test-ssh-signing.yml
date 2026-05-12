@@ -1,0 +1,39 @@
+name: Test SSH signing keys
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Generate test SSH key pair
+        id: keygen
+        run: |
+          ssh-keygen -t ed25519 -f /tmp/test_signing_key -N "" -C "test@example.com"
+          PRIVATE_KEY=$(cat /tmp/test_signing_key)
+          PUBLIC_KEY=$(cat /tmp/test_signing_key.pub)
+          echo "private_key<<EOF" >> $GITHUB_OUTPUT
+          echo "$PRIVATE_KEY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "public_key<<EOF" >> $GITHUB_OUTPUT
+          echo "$PUBLIC_KEY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          no_operation_mode: "true"
+          ssh_public_signing_key: ${{ steps.keygen.outputs.public_key }}
+          ssh_private_signing_key: ${{ steps.keygen.outputs.private_key }}
+          verbosity: "1"
+      - name: Assert released output
+        env:
+          RELEASED: ${{ steps.action.outputs.released }}
+        run: |
+          echo "released: $RELEASED"
+          echo "PASS: action completed with SSH signing keys configured"

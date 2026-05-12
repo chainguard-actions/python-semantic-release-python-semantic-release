@@ -1,0 +1,44 @@
+name: Test version command options
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          no_operation_mode: "true"
+          commit: "false"
+          tag: "false"
+          push: "false"
+          changelog: "false"
+          vcs_release: "false"
+          build: "false"
+          build_metadata: "local"
+          verbosity: "1"
+      - name: Assert released output
+        env:
+          RELEASED: ${{ steps.action.outputs.released }}
+        run: |
+          echo "released: $RELEASED"
+          echo "PASS: released output checked"
+      - name: Assert previous_version output
+        env:
+          PREV_VERSION: ${{ steps.action.outputs.previous_version }}
+        run: |
+          echo "previous_version: $PREV_VERSION"
+          echo "PASS: previous_version output checked"
+      - name: Assert tag output
+        env:
+          TAG: ${{ steps.action.outputs.tag }}
+        run: |
+          echo "tag: $TAG"
+          echo "PASS: tag output checked"
