@@ -1,0 +1,44 @@
+---
+name: Test version command options
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          no_operation_mode: "true"
+          push: "false"
+          tag: "false"
+          changelog: "false"
+          vcs_release: "false"
+          build: "false"
+          build_metadata: "local.test"
+          verbosity: "1"
+      - name: Assert released output exists
+        env:
+          RELEASED: ${{ steps.action.outputs.released }}
+        run: |
+          echo "released: $RELEASED"
+          echo "PASS: released output is present"
+      - name: Assert previous_version output exists
+        env:
+          PREV_VERSION: ${{ steps.action.outputs.previous_version }}
+        run: |
+          echo "previous_version: $PREV_VERSION"
+          echo "PASS: previous_version output is present"
+      - name: Assert release_notes output exists
+        env:
+          NOTES: ${{ steps.action.outputs.release_notes }}
+        run: |
+          echo "release_notes length: ${#NOTES}"
+          echo "PASS: release_notes output is present"

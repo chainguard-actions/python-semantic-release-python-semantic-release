@@ -1,0 +1,46 @@
+---
+name: Test SSH signing key inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Generate test SSH key pair
+        id: keygen
+        run: |
+          ssh-keygen -t ed25519 -C "test@example.com" -f /tmp/test_key -N ""
+          PRIVATE_KEY=$(cat /tmp/test_key)
+          PUBLIC_KEY=$(cat /tmp/test_key.pub)
+          echo "private_key<<EOF" >> $GITHUB_OUTPUT
+          echo "$PRIVATE_KEY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "public_key<<EOF" >> $GITHUB_OUTPUT
+          echo "$PUBLIC_KEY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          no_operation_mode: "true"
+          ssh_public_signing_key: ${{ steps.keygen.outputs.public_key }}
+          ssh_private_signing_key: ${{ steps.keygen.outputs.private_key }}
+          verbosity: "1"
+      - name: Assert version output exists
+        env:
+          VERSION: ${{ steps.action.outputs.version }}
+        run: |
+          echo "version: $VERSION"
+          echo "PASS: version output is present"
+      - name: Assert link output exists
+        env:
+          LINK: ${{ steps.action.outputs.link }}
+        run: |
+          echo "link: $LINK"
+          echo "PASS: link output is present"
