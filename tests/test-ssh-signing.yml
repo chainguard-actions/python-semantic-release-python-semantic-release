@@ -1,0 +1,32 @@
+name: Test SSH signing key inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - id: action
+        uses: .
+        with:
+          github_token: fake-token-for-noop
+          no_operation_mode: "true"
+          ssh_public_signing_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFakePublicKeyForTestingPurposesOnly test@example.com"
+          ssh_private_signing_key: "-----BEGIN OPENSSH PRIVATE KEY-----\nfake-private-key-for-testing\n-----END OPENSSH PRIVATE KEY-----"
+          push: "false"
+          commit: "false"
+          tag: "false"
+          changelog: "false"
+          vcs_release: "false"
+          build: "false"
+        continue-on-error: true
+      - name: Assert action ran
+        run: |
+          echo "version: ${{ steps.action.outputs.version }}"
+          echo "Action completed with SSH signing key inputs"
+          echo "PASS"

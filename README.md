@@ -1,15 +1,6 @@
 # python-semantic-release/python-semantic-release
 
-Automated Releases via SemVer and Commit Message Conventions
-
-Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/python-semantic-release/python-semantic-release](https://github.com/python-semantic-release/python-semantic-release).
-
-## Versions
-
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v10.4.1 | [`v10.4.1`](https://github.com/chainguard-actions/python-semantic-release/tree/v10.4.1) | — |
-| v10.5.2 | [`v10.5.2`](https://github.com/chainguard-actions/python-semantic-release/tree/v10.5.2) | — |
+Hardened GitHub Action by [Chainguard](https://www.chainguard.dev).
 
 ## Privacy
 
