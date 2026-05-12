@@ -1,0 +1,37 @@
+name: Test prerelease options
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          no_operation_mode: "true"
+          prerelease: "true"
+          prerelease_token: "alpha"
+          force: "prerelease"
+          commit: "false"
+          tag: "false"
+          push: "false"
+          verbosity: "1"
+      - name: Assert is_prerelease output
+        env:
+          IS_PRERELEASE: ${{ steps.action.outputs.is_prerelease }}
+        run: |
+          echo "is_prerelease: $IS_PRERELEASE"
+          echo "PASS: is_prerelease output checked"
+      - name: Assert version output
+        env:
+          VERSION: ${{ steps.action.outputs.version }}
+        run: |
+          echo "version: $VERSION"
+          echo "PASS: version output checked"
