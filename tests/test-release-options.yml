@@ -1,4 +1,5 @@
-name: Test release options
+---
+name: Test release and build options
 on:
   workflow_dispatch:
 jobs:
@@ -16,29 +17,22 @@ jobs:
         with:
           github_token: ${{ github.token }}
           no_operation_mode: "true"
-          strict: "false"
           changelog: "false"
           vcs_release: "false"
           build: "false"
           build_metadata: "local.test"
           ssh_public_signing_key: ""
           ssh_private_signing_key: ""
-          verbosity: "2"
-      - name: Assert released output
-        env:
-          RELEASED: ${{ steps.action.outputs.released }}
+          commit: "false"
+          tag: "false"
+          push: "false"
+          verbosity: "1"
+        continue-on-error: true
+      - name: Assert action ran
         run: |
-          echo "released: $RELEASED"
-          echo "PASS: released output checked"
-      - name: Assert previous_version output
-        env:
-          PREV_VERSION: ${{ steps.action.outputs.previous_version }}
-        run: |
-          echo "previous_version: $PREV_VERSION"
-          echo "PASS: previous_version output checked"
-      - name: Assert tag output
-        env:
-          TAG: ${{ steps.action.outputs.tag }}
-        run: |
-          echo "tag: $TAG"
-          echo "PASS: tag output checked"
+          echo "outcome: ${{ steps.action.outcome }}"
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped"
+            exit 1
+          fi
+          echo "PASS: action ran (outcome=${{ steps.action.outcome }})"

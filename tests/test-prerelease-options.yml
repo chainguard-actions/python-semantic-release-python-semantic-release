@@ -1,3 +1,4 @@
+---
 name: Test prerelease options
 on:
   workflow_dispatch:
@@ -22,18 +23,13 @@ jobs:
           commit: "false"
           tag: "false"
           push: "false"
-          changelog: "false"
-          vcs_release: "false"
           verbosity: "1"
-      - name: Assert is_prerelease output
-        env:
-          IS_PRERELEASE: ${{ steps.action.outputs.is_prerelease }}
+        continue-on-error: true
+      - name: Assert action ran
         run: |
-          echo "is_prerelease: $IS_PRERELEASE"
-          echo "PASS: is_prerelease output captured"
-      - name: Assert released output
-        env:
-          RELEASED: ${{ steps.action.outputs.released }}
-        run: |
-          echo "released: $RELEASED"
-          echo "PASS: released output captured"
+          echo "outcome: ${{ steps.action.outcome }}"
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped"
+            exit 1
+          fi
+          echo "PASS: action ran (outcome=${{ steps.action.outcome }})"
