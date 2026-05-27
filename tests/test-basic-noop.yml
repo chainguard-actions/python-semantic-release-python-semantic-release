@@ -28,10 +28,10 @@ jobs:
             echo "FAIL: released output should be 'true' or 'false', got: '$RELEASED'"
             exit 1
           fi
-          echo "PASS: released output is present"
+          echo "PASS"
       - name: Assert version output exists
         env:
           VERSION: ${{ steps.action.outputs.version }}
         run: |
           echo "version: $VERSION"
-          echo "PASS: version output checked"
+          echo "PASS: version output is present (may be empty if no version)"

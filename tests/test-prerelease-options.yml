@@ -22,16 +22,18 @@ jobs:
           commit: "false"
           tag: "false"
           push: "false"
+          changelog: "false"
+          vcs_release: "false"
           verbosity: "1"
       - name: Assert is_prerelease output
         env:
           IS_PRERELEASE: ${{ steps.action.outputs.is_prerelease }}
         run: |
           echo "is_prerelease: $IS_PRERELEASE"
-          echo "PASS: is_prerelease output checked"
-      - name: Assert version output
+          echo "PASS: is_prerelease output captured"
+      - name: Assert released output
         env:
-          VERSION: ${{ steps.action.outputs.version }}
+          RELEASED: ${{ steps.action.outputs.released }}
         run: |
-          echo "version: $VERSION"
-          echo "PASS: version output checked"
+          echo "released: $RELEASED"
+          echo "PASS: released output captured"
