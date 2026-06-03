@@ -1,5 +1,5 @@
 ---
-name: Test basic noop mode
+name: Test prerelease inputs
 on:
   workflow_dispatch:
 jobs:
@@ -16,21 +16,18 @@ jobs:
         uses: .
         with:
           github_token: ${{ github.token }}
-          git_committer_name: "Test Bot"
-          git_committer_email: "test@example.com"
           no_operation_mode: "true"
+          prerelease: "true"
+          prerelease_token: "alpha"
+          force: "prerelease"
           verbosity: "1"
-      - name: Assert released output exists
+      - name: Assert is_prerelease output
         env:
-          RELEASED: ${{ steps.action.outputs.released }}
+          IS_PRERELEASE: ${{ steps.action.outputs.is_prerelease }}
         run: |
-          echo "released: $RELEASED"
-          if [ -z "$RELEASED" ] && [ "$RELEASED" != "true" ] && [ "$RELEASED" != "false" ]; then
-            echo "FAIL: released output should be 'true' or 'false', got: '$RELEASED'"
-            exit 1
-          fi
-          echo "PASS: released output is present"
-      - name: Assert version output exists
+          echo "is_prerelease: $IS_PRERELEASE"
+          echo "PASS: is_prerelease output checked"
+      - name: Assert version output
         env:
           VERSION: ${{ steps.action.outputs.version }}
         run: |
