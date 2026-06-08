@@ -1,5 +1,5 @@
 ---
-name: Test prerelease inputs
+name: Test force and build inputs
 on:
   workflow_dispatch:
 jobs:
@@ -17,13 +17,13 @@ jobs:
         with:
           github_token: fake-token-for-noop
           no_operation_mode: "true"
-          prerelease: "true"
-          prerelease_token: "alpha"
-          commit: "false"
-          tag: "false"
-          push: "false"
+          force: "patch"
+          changelog: "false"
+          vcs_release: "false"
+          build: "false"
+          build_metadata: "local"
         continue-on-error: true
       - name: Assert action ran
         run: |
-          echo "Action completed with prerelease inputs"
+          echo "Action completed with force and build inputs"
           echo "PASS"
