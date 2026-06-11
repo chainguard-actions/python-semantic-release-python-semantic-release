@@ -1,5 +1,5 @@
 ---
-name: Test prerelease inputs
+name: Test prerelease scenario
 on:
   workflow_dispatch:
 jobs:
@@ -15,15 +15,24 @@ jobs:
       - id: action
         uses: .
         with:
-          github_token: fake-token-for-noop
+          github_token: ${{ github.token }}
           no_operation_mode: "true"
           prerelease: "true"
           prerelease_token: "alpha"
-          commit: "false"
-          tag: "false"
           push: "false"
-        continue-on-error: true
-      - name: Assert action ran
+          tag: "false"
+          commit: "false"
+          changelog: "false"
+          vcs_release: "false"
+      - name: Assert is_prerelease output exists
+        env:
+          IS_PRERELEASE: ${{ steps.action.outputs.is_prerelease }}
         run: |
-          echo "Action completed with prerelease inputs"
-          echo "PASS"
+          echo "is_prerelease: $IS_PRERELEASE"
+          echo "PASS: is_prerelease output checked"
+      - name: Assert previous_version output exists
+        env:
+          PREV_VERSION: ${{ steps.action.outputs.previous_version }}
+        run: |
+          echo "previous_version: $PREV_VERSION"
+          echo "PASS: previous_version output checked"

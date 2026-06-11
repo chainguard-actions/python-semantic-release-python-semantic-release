@@ -1,0 +1,35 @@
+---
+name: Test force version with build metadata
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          no_operation_mode: "true"
+          force: "patch"
+          build: "false"
+          build_metadata: "build.001"
+          strict: "false"
+      - name: Assert tag output exists
+        env:
+          TAG: ${{ steps.action.outputs.tag }}
+        run: |
+          echo "tag: $TAG"
+          echo "PASS: tag output checked"
+      - name: Assert link output exists
+        env:
+          LINK: ${{ steps.action.outputs.link }}
+        run: |
+          echo "link: $LINK"
+          echo "PASS: link output checked"

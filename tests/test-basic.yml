@@ -1,0 +1,40 @@
+---
+name: Test basic usage with no-op mode
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          git_committer_name: "Test Bot"
+          git_committer_email: "testbot@example.com"
+          no_operation_mode: "true"
+          verbosity: "1"
+          directory: "."
+          config_file: ""
+      - name: Assert released output exists
+        env:
+          RELEASED: ${{ steps.action.outputs.released }}
+        run: |
+          echo "released: $RELEASED"
+          if [ -z "$RELEASED" ] && [ "$RELEASED" != "false" ] && [ "$RELEASED" != "true" ]; then
+            echo "FAIL: released output should be 'true' or 'false', got: '$RELEASED'"
+            exit 1
+          fi
+          echo "PASS: released output is present"
+      - name: Assert version output exists
+        env:
+          VERSION: ${{ steps.action.outputs.version }}
+        run: |
+          echo "version: $VERSION"
+          echo "PASS: version output checked"

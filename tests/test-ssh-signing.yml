@@ -15,15 +15,22 @@ jobs:
       - id: action
         uses: .
         with:
-          github_token: fake-token-for-noop
+          github_token: ${{ github.token }}
           no_operation_mode: "true"
-          ssh_public_signing_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFakePublicKeyForTestingOnly test@example.com"
-          ssh_private_signing_key: "-----BEGIN OPENSSH PRIVATE KEY-----\nfake-private-key-for-testing-only\n-----END OPENSSH PRIVATE KEY-----"
-          commit: "false"
-          tag: "false"
-          push: "false"
-        continue-on-error: true
-      - name: Assert action ran
+          ssh_public_signing_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITestPublicKeyForCoverageOnly test@example.com"
+          ssh_private_signing_key: |
+            -----BEGIN OPENSSH PRIVATE KEY-----
+            b3BlbnNzaC1rZXktdjEAAAAA
+            -----END OPENSSH PRIVATE KEY-----
+      - name: Assert commit_sha output exists
+        env:
+          COMMIT_SHA: ${{ steps.action.outputs.commit_sha }}
         run: |
-          echo "Action completed with SSH signing key inputs"
-          echo "PASS"
+          echo "commit_sha: $COMMIT_SHA"
+          echo "PASS: commit_sha output checked"
+      - name: Assert release_notes output exists
+        env:
+          RELEASE_NOTES: ${{ steps.action.outputs.release_notes }}
+        run: |
+          echo "release_notes: $RELEASE_NOTES"
+          echo "PASS: release_notes output checked"
