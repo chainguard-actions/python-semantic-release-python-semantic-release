@@ -1,0 +1,13 @@
+[tool.semantic_release]
+version_variables = []
+commit_parser = "angular"
+major_on_zero = true
+
+[tool.semantic_release.branches.main]
+match = "^(main|master|act-harness)$"
+prerelease = false
+prerelease_token = "rc"
+
+[tool.semantic_release.remote]
+type = "github"
+token = { env = "GH_TOKEN" }

@@ -1,0 +1,68 @@
+---
+name: Test noop mode with verbosity zero
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-noop-verbosity-zero:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up git identity and baseline tag
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          # Use a very high tag to ensure it's the latest in the repo history
+          git tag v300.0.0 2>/dev/null || true
+
+      - id: action
+        uses: .
+        with:
+          github_token: "dummy-token-for-noop"
+          config_file: "tests/fixtures/psr-config/pyproject.toml"
+          no_operation_mode: "true"
+          force: "major"
+          commit: "false"
+          tag: "false"
+          push: "false"
+          vcs_release: "false"
+          changelog: "false"
+          verbosity: "0"
+
+      - name: Assert version is a major bump from 300.0.0
+        env:
+          VERSION: ${{ steps.action.outputs.version }}
+        run: |
+          echo "version: $VERSION"
+          if [ "$VERSION" != "301.0.0" ]; then
+            echo "FAIL: expected version=301.0.0 after major bump from 300.0.0, got '$VERSION'"
+            exit 1
+          fi
+          echo "PASS: version=$VERSION"
+
+      - name: Assert released is true
+        env:
+          RELEASED: ${{ steps.action.outputs.released }}
+        run: |
+          echo "released: $RELEASED"
+          if [ "$RELEASED" != "true" ]; then
+            echo "FAIL: expected released=true when force=major is set, got '$RELEASED'"
+            exit 1
+          fi
+          echo "PASS: released=$RELEASED"
+
+      - name: Assert is_prerelease is false
+        env:
+          IS_PRERELEASE: ${{ steps.action.outputs.is_prerelease }}
+        run: |
+          echo "is_prerelease: $IS_PRERELEASE"
+          if [ "$IS_PRERELEASE" != "false" ]; then
+            echo "FAIL: expected is_prerelease=false for non-prerelease version, got '$IS_PRERELEASE'"
+            exit 1
+          fi
+          echo "PASS: is_prerelease=$IS_PRERELEASE"
