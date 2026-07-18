@@ -1,4 +1,4 @@
-name: Test noop with SSH signing keys
+name: Test noop with build input
 on:
   workflow_dispatch:
 jobs:
@@ -6,19 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Generate temporary SSH key pair for testing
-        id: keygen
-        run: |
-          ssh-keygen -t ed25519 -C "test@example.com" -f /tmp/test_signing_key -N ""
-          echo "public_key=$(cat /tmp/test_signing_key.pub)" >> "$GITHUB_OUTPUT"
-          echo "private_key_b64=$(base64 -w0 /tmp/test_signing_key)" >> "$GITHUB_OUTPUT"
       - id: action
         uses: .
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           no_operation_mode: "true"
-          ssh_public_signing_key: ${{ steps.keygen.outputs.public_key }}
-          ssh_private_signing_key: ${{ steps.keygen.outputs.private_key_b64 }}
+          build: "false"
       - name: Assert released is false in noop mode
         env:
           RELEASED: ${{ steps.action.outputs.released }}

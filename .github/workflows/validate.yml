@@ -128,9 +128,9 @@ jobs:
       - name: Build | Annotate next version
         if: steps.version.outputs.released == 'true'
         env:
-          NEXT_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
         run: |
-          printf '%s\n' "::notice::Next release will be '$NEXT_TAG'"
+          printf '%s\n' "::notice::Next release will be '$RELEASE_TAG'"
 
       - name: Build | Create non-versioned distribution artifact
         if: steps.version.outputs.released == 'false'
@@ -363,7 +363,7 @@ jobs:
             -vv                                                     `
             -nauto                                                  `
             -m e2e                                                  `
-            `--cov="$env:PKG_INSTALLED_DIR"                         `
+            "--cov=$env:PKG_INSTALLED_DIR"   `
             `--cov-context=test                                     `
             `--cov-report=term-missing                              `
             `--junit-xml=tests/reports/pytest-results.xml

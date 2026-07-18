@@ -1,0 +1,71 @@
+---
+name: Test no-operation mode
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-noop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Create initial tag for semantic-release baseline
+        run: |
+          git tag v0.1.0 HEAD || true
+
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          directory: tests/fixtures/psr-project
+          no_operation_mode: "true"
+          commit: "false"
+          tag: "false"
+          push: "false"
+          changelog: "false"
+          vcs_release: "false"
+          git_committer_name: "Test User"
+          git_committer_email: "test@example.com"
+
+      - name: Assert version output is set
+        env:
+          VERSION: ${{ steps.action.outputs.version }}
+          RELEASED: ${{ steps.action.outputs.released }}
+        run: |
+          echo "version: $VERSION"
+          echo "released: $RELEASED"
+          if [ -z "$VERSION" ]; then
+            echo "FAIL: expected version output to be non-empty"
+            exit 1
+          fi
+          echo "PASS: version output is set to '$VERSION'"
+
+      - name: Assert released output is a boolean string
+        env:
+          RELEASED: ${{ steps.action.outputs.released }}
+        run: |
+          echo "released: $RELEASED"
+          if [ "$RELEASED" != "true" ] && [ "$RELEASED" != "false" ]; then
+            echo "FAIL: expected released to be 'true' or 'false', got '$RELEASED'"
+            exit 1
+          fi
+          echo "PASS: released output is a valid boolean string"
+
+      - name: Assert is_prerelease output is a boolean string
+        env:
+          IS_PRERELEASE: ${{ steps.action.outputs.is_prerelease }}
+        run: |
+          echo "is_prerelease: $IS_PRERELEASE"
+          if [ "$IS_PRERELEASE" != "true" ] && [ "$IS_PRERELEASE" != "false" ]; then
+            echo "FAIL: expected is_prerelease to be 'true' or 'false', got '$IS_PRERELEASE'"
+            exit 1
+          fi
+          echo "PASS: is_prerelease output is a valid boolean string"

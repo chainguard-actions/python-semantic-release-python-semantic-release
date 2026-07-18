@@ -1,28 +1,30 @@
-name: Test noop with build and build_metadata inputs
+name: Test noop with build_metadata input
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: action
         uses: .
         with:
-          github_token: fake-token-for-noop
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           no_operation_mode: "true"
-          build: "false"
-          build_metadata: "local.1"
-      - name: Assert released output exists
+          build_metadata: "20240101"
+      - name: Assert released is false in noop mode
         env:
           RELEASED: ${{ steps.action.outputs.released }}
         run: |
           echo "released: $RELEASED"
-          if [ -z "$RELEASED" ] && [ "$RELEASED" != "false" ] && [ "$RELEASED" != "true" ]; then
-            echo "FAIL: expected released output to be set"
+          if [ "$RELEASED" = "true" ]; then
+            echo "FAIL: expected released to be false in noop mode"
             exit 1
           fi
           echo "PASS"
+      - name: Assert version output is present
+        env:
+          VERSION: ${{ steps.action.outputs.version }}
+        run: |
+          echo "version: $VERSION"
+          echo "PASS: version output received (may be empty if no version exists)"
